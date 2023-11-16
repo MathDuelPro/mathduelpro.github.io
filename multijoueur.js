@@ -1,7 +1,6 @@
 // Connexion au serveur Socket.IO
 const socket = io();
-
-// ... (votre code existant)
+console.log("Socket connected");
 
 // Fonction pour démarrer la partie multijoueur
 function startMultiplayerGame(roomCode) {
