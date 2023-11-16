@@ -55,28 +55,38 @@
 <body>
     <h1>Math Duel Pro - Mode Multijoueur</h1>
 
-    <div id="roomCode"></div>
+    <div>
+        <button onclick="createRoom()">Créer une salle</button>
+        <button onclick="joinRoom()">Rejoindre une salle</button>
+    </div>
 
-    <div id="equation"></div>
+    <div id="roomCode" style="display: none;"></div>
 
-    <input type="text" id="answer" placeholder="Votre réponse" onkeydown="if(event.keyCode==13) checkAnswer()">
-    <button id="submitBtn" onclick="checkAnswer()">Valider</button>
+    <div id="equation" style="display: none;"></div>
 
-    <div id="score">Score : 0</div>
-    <div id="timer">Temps restant : <span id="time">100</span> secondes</div>
+    <div id="score" style="display: none;">Score : 0</div>
+    <div id="timer" style="display: none;">Temps restant : <span id="time">100</span> secondes</div>
 
-    <button id="refreshBtn" onclick="refreshTest()">Actualiser</button>
+    <button id="refreshBtn" style="display: none;" onclick="refreshTest()">Actualiser</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
     <script src="multijoueur.js"></script>
 
     <script>
-        // Récupérer le code de la salle depuis l'URL (par exemple, ?roomCode=XYZ)
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomCode = urlParams.get('roomCode');
+        function createRoom() {
+            // Demander au serveur de créer une salle
+            socket.emit('createRoom');
+        }
 
-        // Démarrer la partie multijoueur
-        startMultiplayerGame(roomCode);
+        function joinRoom() {
+            // Demander le code de la salle à l'utilisateur
+            const roomCode = prompt("Entrez le code de la salle :");
+            
+            if (roomCode) {
+                // Rediriger vers la page multijoueur avec le code de la salle
+                window.location.href = "multiplayer.html?roomCode=" + roomCode;
+            }
+        }
     </script>
 </body>
 </html>
