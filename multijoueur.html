@@ -3,12 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Duel Pro</title>
+    <title>Math Duel Pro - Multijoueur</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 50px;
+        }
+
+        h1 {
+            color: #3498db;
+        }
+
+        #roomCode {
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
         #equation {
@@ -30,10 +39,23 @@
             font-size: 28px;
             margin-top: 20px;
         }
+
+        #timer {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        #refreshBtn {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
-    <h1>Math Duel Pro</h1>
+    <h1>Math Duel Pro - Mode Multijoueur</h1>
+
+    <div id="roomCode"></div>
 
     <div id="equation"></div>
 
@@ -45,6 +67,7 @@
 
     <button id="refreshBtn" onclick="refreshTest()">Actualiser</button>
 
-    <script src="app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
+    <script src="multiplayer.js"></script>
 </body>
 </html>
