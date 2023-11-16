@@ -117,3 +117,15 @@ timer = setInterval(updateTimer, 1000);
 
 // Ajouter un gestionnaire d'événements pour réinitialiser la couleur du texte lors de la modification de la réponse
 document.getElementById('answer').addEventListener('input', resetTextColor);
+
+// Fonction pour démarrer le mode Solo
+function startSoloMode() {
+    // Rediriger vers la page du mode Solo
+    window.location.href = "solo.html";
+}
+
+// Fonction pour démarrer le mode Multijoueur
+function startMultiplayerMode() {
+    // Rediriger vers la page du mode Multijoueur
+    window.location.href = "multijoueur.html";
+}

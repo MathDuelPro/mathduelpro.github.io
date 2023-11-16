@@ -11,39 +11,30 @@
             margin: 50px;
         }
 
-        #equation {
-            font-size: 24px;
-            margin-bottom: 20px;
+        h1 {
+            color: #3498db;
         }
 
-        #answer {
-            padding: 8px;
-            font-size: 16px;
+        #modeButtons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        #submitBtn {
+        .modeButton {
+            margin: 0 10px;
             padding: 10px;
             font-size: 18px;
-        }
-
-        #score {
-            font-size: 28px;
-            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Math Duel Pro</h1>
+    <h1>Math Duel</h1>
 
-    <div id="equation"></div>
-
-    <input type="text" id="answer" placeholder="Votre réponse" onkeydown="if(event.keyCode==13) checkAnswer()">
-    <button id="submitBtn" onclick="checkAnswer()">Valider</button>
-
-    <div id="score">Score : 0</div>
-    <div id="timer">Temps restant : <span id="time">100</span> secondes</div>
-
-    <button id="refreshBtn" onclick="refreshTest()">Actualiser</button>
+    <div id="modeButtons">
+        <button class="modeButton" onclick="startSoloMode()">Mode Solo</button>
+        <button class="modeButton" onclick="startMultiplayerMode()">Mode Multijoueur</button>
+    </div>
 
     <script src="app.js"></script>
 </body>
