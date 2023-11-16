@@ -56,8 +56,8 @@
     <h1>Math Duel Pro - Mode Multijoueur</h1>
 
     <div>
-        <button onclick="createRoom()">Créer une salle</button>
-        <button onclick="joinRoom()">Rejoindre une salle</button>
+        <button id="createRoomBtn">Créer une salle</button>
+        <button id="joinRoomBtn">Rejoindre une salle</button>
     </div>
 
     <div id="roomCode" style="display: none;"></div>
@@ -69,16 +69,25 @@
 
     <button id="refreshBtn" style="display: none;" onclick="refreshTest()">Actualiser</button>
 
-    <script src="https://mathduelpro.github.io/socket.io/socket.io.js"></script>
-    <script src="multijoueur.js"></script>
+    <script src="http://mathduelpro.github.io:3000/socket.io/socket.io.js"></script>
+    <script src="multiplayer.js"></script>
 
     <script>
+        // Connexion au serveur Socket.IO
+        const socket = io();
+        console.log("Socket connected");
+
+        // Déclaration de la fonction createRoom
         function createRoom() {
             console.log("Clicked on createRoom");
             // Demander au serveur de créer une salle
             socket.emit('createRoom');
         }
 
+        // Attacher l'événement de création de salle au bouton
+        document.getElementById('createRoomBtn').addEventListener('click', createRoom);
+
+        // Déclaration de la fonction joinRoom
         function joinRoom() {
             // Demander le code de la salle à l'utilisateur
             const roomCode = prompt("Entrez le code de la salle :");
@@ -88,6 +97,9 @@
                 window.location.href = "multiplayer.html?roomCode=" + roomCode;
             }
         }
+
+        // Attacher l'événement de rejoindre une salle au bouton
+        document.getElementById('joinRoomBtn').addEventListener('click', joinRoom);
     </script>
 </body>
 </html>
