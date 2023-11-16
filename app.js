@@ -127,5 +127,5 @@ function startSoloMode() {
 // Fonction pour démarrer le mode Multijoueur
 function startMultiplayerMode() {
     // Rediriger vers la page du mode Multijoueur
-    window.location.href = "multijoueur.html";
+    window.location.href = "multiplayer.html";
 }
