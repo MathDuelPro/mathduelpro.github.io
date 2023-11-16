@@ -68,6 +68,15 @@
     <button id="refreshBtn" onclick="refreshTest()">Actualiser</button>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
-    <script src="multiplayer.js"></script>
+    <script src="multijoueur.js"></script>
+
+    <script>
+        // Récupérer le code de la salle depuis l'URL (par exemple, ?roomCode=XYZ)
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomCode = urlParams.get('roomCode');
+
+        // Démarrer la partie multijoueur
+        startMultiplayerGame(roomCode);
+    </script>
 </body>
 </html>
