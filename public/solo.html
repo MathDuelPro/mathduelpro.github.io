@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Duel Pro - Mode Solo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        #equation {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #answer {
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        #submitBtn {
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        #score {
+            font-size: 28px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Math Duel Pro - Mode Solo</h1>
+
+    <div id="equation"></div>
+
+    <input type="text" id="answer" placeholder="Votre réponse" onkeydown="if(event.keyCode==13) checkAnswer()">
+    <button id="submitBtn" onclick="checkAnswer()">Valider</button>
+
+    <div id="score">Score : 0</div>
+    <div id="timer">Temps restant : <span id="time">100</span> secondes</div>
+
+    <button id="refreshBtn" onclick="refreshTest()">Actualiser</button>
+
+    <script src="/solo.js"></script>
+</body>
+</html>

@@ -1,125 +1,110 @@
-var score = 0;
-var timer;
+const { Socket } = require('socket.io');
 
-// Fonction pour générer une équation mathématique avec des additions, des soustractions et des multiplications
-function generateMathEquation() {
-    var num1, num2, operator;
+const express = require('express');
 
-    // Choix aléatoire de l'opérateur
-    operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+const app = express();
+const http = require('http').createServer(app);
+const path = require('path');
+const port = 8080;
 
-    // Assurer que la réponse ne sera pas négative pour les soustractions
-    if (operator === '-') {
-        num1 = Math.floor(Math.random() * 900) + 100;  // Nombre de trois chiffres
-        num2 = Math.floor(Math.random() * num1);        // Nombre inférieur à num1 pour éviter les résultats négatifs
-    } else if (operator === '*') {
-        num1 = Math.floor(Math.random() * 9) + 3;       // Nombre de deux chiffres (exclut 1 et 2)
-        num2 = Math.floor(Math.random() * 9) + 3;       // Nombre de deux chiffres (exclut 1 et 2)
-    } else {
-        // Pour les additions, des nombres de trois chiffres
-        num1 = Math.floor(Math.random() * 900) + 100;  // Nombre de trois chiffres
-        num2 = Math.floor(Math.random() * 900) + 100;  // Nombre de trois chiffres
-    }
+/**
+ * @type {Socket}
+ */
+const io = require('socket.io')(http);
 
-    return num1 + ' ' + operator + ' ' + num2;
-}
+app.use('/bootstrap/css', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/css')));
+app.use('/bootstrap/js', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js')));
+app.use('/jquery', express.static(path.join(__dirname, 'node_modules/jquery/dist')));
+app.use(express.static('public'));
 
-// Fonction pour vérifier la réponse de l'utilisateur
-function checkAnswer() {
-    // Récupérer l'équation actuelle
-    var equationElement = document.getElementById('equation');
-    var equation = equationElement.innerText;
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates/index.html'));
+});
 
-    // Récupérer la réponse de l'utilisateur
-    var userAnswerElement = document.getElementById('answer');
-    var userAnswer = userAnswerElement.value;
+app.get('/games/tic-tac-toe', (req, res) => {
+    res.sendFile(path.join(__dirname, 'templates/games/tic-tac-toe.html'));
+});
 
-    // Calculer la réponse correcte
-    var correctAnswer = eval(equation);
+http.listen(port, () => {
+    console.log(`Listening on http://localhost:${port}/`);
+});
 
-    // Vérifier la réponse de l'utilisateur
-    if (userAnswer === correctAnswer.toString()) {
-        // Incrémenter le score
-        score++;
-        updateScore();
+let rooms = [];
 
-        // Générer une nouvelle équation
-        equationElement.innerText = generateMathEquation();
-        // Effacer la zone de réponse
-        userAnswerElement.value = '';
-    } else {
-        // Indiquer que la réponse est incorrecte en rouge
-        userAnswerElement.style.color = 'red';
-    }
-}
+io.on('connection', (socket) => {
+    console.log(`[connection] ${socket.id}`);
 
-// Fonction pour réinitialiser la couleur du texte à noir lorsqu'une modification est détectée
-function resetTextColor() {
-    document.getElementById('answer').style.color = 'black';
-}
+    socket.on('playerData', (player) => {
+        console.log(`[playerData] ${player.username}`);
 
-// Fonction pour mettre à jour le score affiché
-function updateScore() {
-    document.getElementById('score').innerText = 'Score : ' + score;
-}
+        let room = null;
 
-// Fonction pour mettre à jour le minuteur
-function updateTimer() {
-    var timeElement = document.getElementById('time');
-    var time = parseInt(timeElement.innerText);
-
-    if (time > 0) {
-        time--;
-        timeElement.innerText = time;
-    } else {
-        // Afficher le score final avec une phrase personnalisée
-        clearInterval(timer);
-
-        var scoreMessage;
-        if (score < 9) {
-            scoreMessage = "Tu as eu " + score + ", tu es mauvais ! Entraîne-toi et reviens plus fort.";
-        } else if (score >= 9 && score <= 18) {
-            scoreMessage = "Tu as eu " + score + ", c'est pas mal, mais tu peux mieux faire !";
+        if (!player.roomId) {
+            room = createRoom(player);
+            console.log(`[create room ] - ${room.id} - ${player.username}`);
         } else {
-            scoreMessage = "Tu as eu " + score + ", t'es vraiment bon tu sais, ça te dirait de rejoindre les Lakers ?";
+            room = rooms.find(r => r.id === player.roomId);
+
+            if (room === undefined) {
+                return;
+            }
+
+            player.roomId = room.id;
+            room.players.push(player);
         }
 
-        alert('Temps écoulé. ' + scoreMessage);
-    }
+        socket.join(room.id);
+
+        io.to(socket.id).emit('join room', room.id);
+
+        if (room.players.length === 2) {
+            io.to(room.id).emit('start game', room.players);
+        }
+    });
+
+    socket.on('get rooms', () => {
+        io.to(socket.id).emit('list rooms', rooms);
+    });
+
+    socket.on('play', (player) => {
+        console.log(`[play] ${player.username}`);
+        io.to(player.roomId).emit('play', player);
+    });
+
+    socket.on('play again', (roomId) => {
+        const room = rooms.find(r => r.id === roomId);
+
+        if (room && room.players.length === 2) {
+            io.to(room.id).emit('play again', room.players);
+        }
+    })
+
+    socket.on('disconnect', () => {
+        console.log(`[disconnect] ${socket.id}`);
+        let room = null;
+
+        rooms.forEach(r => {
+            r.players.forEach(p => {
+                if (p.socketId === socket.id && p.host) {
+                    room = r;
+                    rooms = rooms.filter(r => r !== room);
+                }
+            })
+        })
+    });
+});
+
+function createRoom(player) {
+    const room = { id: roomId(), players: [] };
+
+    player.roomId = room.id;
+
+    room.players.push(player);
+    rooms.push(room);
+
+    return room;
 }
 
-
-// Fonction pour actualiser le test (recommencer)
-function refreshTest() {
-    // Réinitialiser le score et le minuteur
-    score = 0;
-    updateScore();
-    clearInterval(timer);
-    document.getElementById('time').innerText = 100;
-
-    // Générer une nouvelle équation
-    document.getElementById('equation').innerText = generateMathEquation();
-
-    // Effacer la zone de réponse
-    document.getElementById('answer').value = '';
-
-    // Réinitialiser la couleur du texte
-    document.getElementById('answer').style.color = 'black';
-
-    // Redémarrer le minuteur
-    timer = setInterval(updateTimer, 1000);
-}
-
-// Initialiser avec une équation et démarrer le minuteur au chargement de la page
-document.getElementById('equation').innerText = generateMathEquation();
-updateScore();
-timer = setInterval(updateTimer, 1000);
-
-// Ajouter un gestionnaire d'événements pour réinitialiser la couleur du texte lors de la modification de la réponse
-document.getElementById('answer').addEventListener('input', resetTextColor);
-
-// Fonction pour démarrer le mode Solo
-function startSoloMode() {
-    // Rediriger vers la page du mode Solo
-    window.location.href = "solo.html";
+function roomId() {
+    return Math.random().toString(36).substr(2, 9);
 }
